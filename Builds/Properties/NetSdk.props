@@ -38,8 +38,12 @@ To import this file add next line to the .csproj file:
   </PropertyGroup>
   
   <PropertyGroup>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <OutDir>$(ProjectBuildDirectory)$(TargetFramework)\</OutDir>
+    
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/Red-Sharp-Group/RedSharp.Mvvm.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Red-Sharp-Group/RedSharp.Mvvm</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageOutputPath>$(ProjectBuildDirectory)nupkg\</PackageOutputPath>
   </PropertyGroup>
 
