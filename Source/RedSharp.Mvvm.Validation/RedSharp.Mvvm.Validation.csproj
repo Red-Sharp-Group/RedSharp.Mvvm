@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(SolutionDir)..\Builds\Properties\NetSdk.props" />
+
+  <PropertyGroup>
+    <TargetFrameworks>$(TargetNetCore);$(TargetNetStandard);$(TargetNetFramework)</TargetFrameworks>
+    <Configurations>Debug;Release;Debug(NetFramework);Debug(NetStandard);Debug(NetCore)</Configurations>
+    <AssemblyTitle>Red Sharp: Set of validations classes for the MVVM library</AssemblyTitle>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>$(MSBuildProjectName)</PackageId>
+    <Title>$(AssemblyTitle)</Title>
+    <Description>The package contains classes, helpers and interfaces to perform data validation.</Description>
+    <PackageIcon>PackageIcon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="PackageIcon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RedSharp.Mvvm\RedSharp.Mvvm.csproj" />
+  </ItemGroup>
+  
+</Project>

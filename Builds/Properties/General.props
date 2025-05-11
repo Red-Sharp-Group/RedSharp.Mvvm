@@ -1,0 +1,34 @@
+<!--
+     ,////////////////////////          
+        /////////////////////////       
+          ,////////////////////////     
+    ///(                    ((((((((    
+    ///((((                 ((((((((    
+    //((((((                ((((((((    
+    //((((((                ((((((((    
+    /(((((((                ((((((((    
+    /((((((((               ((((((((    
+    (((((((((((             ((((((((    
+      *###################    ,(((((    
+         ###################     (((    
+           *################       ,   
+
+            RED SHARP GROUP
+               
+This file adds extra information about solution.
+-->
+<Project>
+  <PropertyGroup>
+    <MainDirectory>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)..\..\'))</MainDirectory>
+    <BuildsDirectory>$(MainDirectory)Builds\</BuildsDirectory>
+    <SourceDirectory>$(MainDirectory)Source\</SourceDirectory>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="$(Configuration.Contains('Debug'))">
+    <ProjectBuildDirectory>$(BuildsDirectory)Debug\$(MSBuildProjectName)\</ProjectBuildDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(Configuration.Contains('Release'))">
+    <ProjectBuildDirectory>$(BuildsDirectory)Release\$(MSBuildProjectName)\</ProjectBuildDirectory>
+  </PropertyGroup>
+</Project>

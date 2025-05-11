@@ -1,0 +1,41 @@
+<!--
+     ,////////////////////////          
+        /////////////////////////       
+          ,////////////////////////     
+    ///(                    ((((((((    
+    ///((((                 ((((((((    
+    //((((((                ((((((((    
+    //((((((                ((((((((    
+    /(((((((                ((((((((    
+    /((((((((               ((((((((    
+    (((((((((((             ((((((((    
+      *###################    ,(((((    
+         ###################     (((    
+           *################       ,   
+
+            RED SHARP GROUP
+               
+This file is product definition, all assemblies in 
+the product group should import it. All changes, even minor, 
+has to be reflected on the product version - it is like an 
+official guarantee of libraries compatibility.
+-->
+<Project>
+  <PropertyGroup>
+    <!--==================================================-->
+    <!--Product information-->
+    <Product>RedSharp.Mvvm</Product>
+    <Authors>Andrii Kudriavtsev</Authors>
+
+    <Company>Red Sharp Group</Company>
+    <Copyright>Red Sharp Group 2025</Copyright>
+
+    <Version>0.1.0.1</Version>
+
+    <TargetNetFramework>net48</TargetNetFramework>
+    <TargetNetStandard>netstandard2.0</TargetNetStandard>
+    <TargetNetCore>net8.0</TargetNetCore>
+
+    <NugetSource>https://localhost:9696/v3/index.json</NugetSource>
+  </PropertyGroup>
+</Project>

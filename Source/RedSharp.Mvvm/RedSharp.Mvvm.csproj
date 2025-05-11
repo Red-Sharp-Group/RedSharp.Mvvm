@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(SolutionDir)..\Builds\Properties\NetSdk.props" />
+
+  <PropertyGroup>
+    <TargetFrameworks>$(TargetNetCore);$(TargetNetStandard);$(TargetNetFramework)</TargetFrameworks>
+    <Configurations>Debug;Release;Debug(NetFramework);Debug(NetStandard);Debug(NetCore)</Configurations>
+    <AssemblyTitle>Red Sharp: MVVM library</AssemblyTitle>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>$(MSBuildProjectName)</PackageId>
+    <Title>$(AssemblyTitle)</Title>
+    <Description>The package contains classes, helpers and interfaces specific for MVVM architecture.</Description>
+    <PackageIcon>PackageIcon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="PackageIcon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RedSharp.General" Version="0.1.0.4" />
+  </ItemGroup>
+
+</Project>

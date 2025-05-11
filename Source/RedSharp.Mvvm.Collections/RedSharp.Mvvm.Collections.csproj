@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(SolutionDir)..\Builds\Properties\NetSdk.props" />
+  
+  <PropertyGroup>
+    <TargetFrameworks>$(TargetNetCore);$(TargetNetStandard);$(TargetNetFramework)</TargetFrameworks>
+    <Configurations>Debug;Release;Debug(NetFramework);Debug(NetStandard);Debug(NetCore)</Configurations>
+    <AssemblyTitle>Red Sharp: MVVM oriented set of collections</AssemblyTitle>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>$(MSBuildProjectName)</PackageId>
+    <Title>$(AssemblyTitle)</Title>
+    <PackageIcon>PackageIcon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RedSharp.General" Version="0.1.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
+    <None Include="PackageIcon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,84 @@
+<!--
+     ,////////////////////////          
+        /////////////////////////       
+          ,////////////////////////     
+    ///(                    ((((((((    
+    ///((((                 ((((((((    
+    //((((((                ((((((((    
+    //((((((                ((((((((    
+    /(((((((                ((((((((    
+    /((((((((               ((((((((    
+    (((((((((((             ((((((((    
+      *###################    ,(((((    
+         ###################     (((    
+           *################       ,   
+
+            RED SHARP GROUP
+               
+This file adds different build properties to the project.
+
+To import this file add next line to the .csproj file:
+
+<Import Project="$(SolutionDir)..\Builds\Properties\NetSdk.props"/>
+-->
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)Product.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)General.props"/>
+  
+  <PropertyGroup Condition="$(Configuration.Contains('NetFramework'))">
+    <TargetFramework>$(TargetNetFramework)</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(Configuration.Contains('NetStandard'))">
+    <TargetFramework>$(TargetNetStandard)</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(Configuration.Contains('NetCore'))">
+    <TargetFramework>$(TargetNetCore)</TargetFramework>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <OutDir>$(ProjectBuildDirectory)$(TargetFramework)\</OutDir>
+    <PackageOutputPath>$(ProjectBuildDirectory)nupkg\</PackageOutputPath>
+  </PropertyGroup>
+
+  <!--==================================================-->
+  <!--Give strong name key to the assembly if the snk file is presented-->
+  <PropertyGroup Condition="Exists('$(MSBuildThisFileDirectory)RedSharp.snk')">
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)RedSharp.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <!--==================================================-->
+  <!--Include License and Product info files to the project-->
+  <ItemGroup>
+    <None Include="$(MainDirectory)LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    
+    <None Include="$(MSBuildThisFileDirectory)Product.props"
+          Link="Product.props" />
+  </ItemGroup>
+
+  <!--==================================================-->
+  <!--Sending package to nuget server if the api key file is presented-->  
+  <Target Name="PushToNuget" 
+          AfterTargets="Pack" 
+          Condition="$(Configuration.Contains('Release')) AND Exists('$(MSBuildThisFileDirectory)NuGet.apikey')">
+    
+    <ReadLinesFromFile File="$(MSBuildThisFileDirectory)NuGet.apikey">
+      <Output TaskParameter="Lines" 
+              PropertyName="NugetApiKey" />
+    </ReadLinesFromFile>
+    
+    <PropertyGroup>
+      <PackageFile>$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg</PackageFile>
+    </PropertyGroup>
+
+    <Message Text="Publication of the $(PackageId) to NuGet server: $(NugetSource)" Importance="High" />
+
+    <Exec Command="dotnet nuget push &quot;$(PackageFile)&quot; --api-key $(NugetApiKey) --source $(NugetSource)" />
+  </Target>
+</Project>
