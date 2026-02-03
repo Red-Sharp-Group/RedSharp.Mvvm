@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq.Expressions;
 using RedSharp.General.Helpers;
 using RedSharp.Mvvm.Bindings.Entities;
 using RedSharp.Mvvm.Bindings.Interfaces;
@@ -17,6 +18,22 @@ namespace RedSharp.Mvvm.Bindings.Helpers
             internal List<IBindingChain> Bindings;
 
             internal IBindingChain<TValue> LastChain;
+        }
+
+        public static BindingBuilder<TValue> Bind<TInput, TValue>(this TInput input,
+                                                                  Expression<Func<TInput, TValue>> getter,
+                                                                  Expression<Action<TInput, TValue>> setter = null) where TInput : INotifyPropertyChanged
+        {
+            ArgumentsGuard.ThrowIfNull(input, nameof(input));
+
+            var body = getter.Body;
+
+            if (body is UnaryExpression unary && unary.NodeType == ExpressionType.Convert)
+                body = unary.Operand;
+
+            var name = ((MemberExpression)body).Member.Name;
+
+            return Bind(input, name, getter.Compile(), setter?.Compile());
         }
 
         /// <summary>
@@ -39,6 +56,20 @@ namespace RedSharp.Mvvm.Bindings.Helpers
                 Bindings = new List<IBindingChain> { fixedValueChain, notifyPropertyChangedChain },
                 LastChain = notifyPropertyChangedChain
             };
+        }
+
+        public static BindingBuilder<TValue> Bind<TInput, TValue>(this BindingBuilder<TInput> builder,
+                                                                  Expression<Func<TInput, TValue>> getter,
+                                                                  Expression<Action<TInput, TValue>> setter = null) where TInput : INotifyPropertyChanged
+        {
+            var body = getter.Body;
+
+            if (body is UnaryExpression unary && unary.NodeType == ExpressionType.Convert)
+                body = unary.Operand;
+
+            var name = ((MemberExpression)body).Member.Name;
+
+            return Bind(builder, name, getter.Compile(), setter?.Compile());
         }
 
         /// <summary>
@@ -77,11 +108,19 @@ namespace RedSharp.Mvvm.Bindings.Helpers
         }
 
         /// <summary>
-        /// Completes binding expression building and returns fully formed expression
+        /// Completes binding expression builder and returns fully formed expression
         /// </summary>
-        public static IBindingExpression<TValue> Complete<TValue>(this BindingBuilder<TValue> builder)
+        public static IBindingExpression<TValue> CompleteExpression<TValue>(this BindingBuilder<TValue> builder)
         {
             return new BindingExpression<TValue>(builder.Bindings);
+        }
+
+        /// <summary>
+        /// Completes binding expression builder and returns an expression as a component to include.
+        /// </summary>
+        public static BindingComponent<TValue> CompleteComponent<TValue>(this BindingBuilder<TValue> builder, string propertyName)
+        {
+            return new BindingComponent<TValue>(builder.Bindings, propertyName);
         }
     }
 }

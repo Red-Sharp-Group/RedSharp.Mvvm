@@ -10,6 +10,12 @@ namespace RedSharp.Mvvm.Abstracts
     public abstract class AsyncCommandBase : CommandBase
     {
         /// <summary>
+        /// The time of execution when the <see cref="IsRunning"/> should stay false.
+        /// <br/>This prevents "blinking" of UI for short operations, which is annoying.
+        /// </summary>
+        public const int AcceptableDelayTime = 50; //milliseconds
+
+        /// <summary>
         /// Cached arguments "changING" for the <see cref="IsRunning"/> property
         /// </summary>
         public static readonly PropertyChangingEventArgs IsRunningChanging = new PropertyChangingEventArgs(nameof(IsRunning));

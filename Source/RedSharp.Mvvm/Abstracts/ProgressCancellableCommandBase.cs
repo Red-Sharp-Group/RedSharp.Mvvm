@@ -1,18 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace RedSharp.Mvvm.Abstracts
 {
     /// <summary>
     /// The basic command that can report progress and can be canceled
     /// </summary>
-    public abstract class ProgressCancellableCommandBase : AsyncCancellableCommandBase
+    public abstract class ProgressCancellableCommandBase<TParameter> : AsyncCancellableCommandBase
     {
-        private double _progress;
+        private TParameter _progress;
 
-        private Progress<double> _progressHandler;
+        private Progress<TParameter> _progressHandler;
 
-        /// <inheritdoc cref="ProgressCommandBase.Progress"/>
-        public double Progress
+        /// <inheritdoc cref="ProgressCommandBase{TParameter}.Progress"/>
+        public TParameter Progress
         {
             get => _progress;
             private set
@@ -20,36 +21,42 @@ namespace RedSharp.Mvvm.Abstracts
                 if (IsCanceling)
                     return;
 
-                if (value < 0.0)
-                    value = 0.0;
+                value = CorrectProgressValue(value);
 
-                if (value > 1.0)
-                    value = 1.0;
-
-                if (_progress == value)
+                if (EqualityComparer<TParameter>.Default.Equals(_progress, value))
                     return;
 
-                RaisePropertyChanging(ProgressCommandBase.ProgressChanging);
+                RaisePropertyChanging(ProgressCommandBase<TParameter>.ProgressChanging);
 
                 _progress = value;
 
-                RaisePropertyChanged(ProgressCommandBase.ProgressChanged);
+                RaisePropertyChanged(ProgressCommandBase<TParameter>.ProgressChanged);
             }
         }
 
-        /// <inheritdoc cref="ProgressCommandBase.InitializeProgressHandler"/>
-        protected IProgress<double> InitializeProgressHandler()
+        /// <inheritdoc cref="ProgressCommandBase{TParameter}.InitializeProgressHandler"/>
+        protected IProgress<TParameter> InitializeProgressHandler()
         {
             if (_progressHandler == null)
-                _progressHandler = new Progress<double>(value => Progress = value);
+                _progressHandler = new Progress<TParameter>(value => Progress = value);
 
             return _progressHandler;
         }
 
-        /// <inheritdoc cref="ProgressCommandBase.TerminateProgressHandler"/>
-        protected void TerminateProgressHandler()
+        /// <inheritdoc cref="ProgressCommandBase{TParameter}.ResetProgressValue"/>
+        protected void ResetProgressValue()
         {
-            Progress = 0.0;
+            Progress = GetDefaultProgressValue();
+        }
+
+        protected virtual TParameter GetDefaultProgressValue()
+        {
+            return default;
+        }
+
+        protected virtual TParameter CorrectProgressValue(TParameter input)
+        {
+            return input;
         }
     }
 }

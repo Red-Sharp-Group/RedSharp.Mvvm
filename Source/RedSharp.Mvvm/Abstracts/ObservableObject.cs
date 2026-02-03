@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using RedSharp.General.Helpers;
+using RedSharp.Mvvm.Components;
+using RedSharp.Mvvm.Interfaces;
+using RedSharp.Mvvm.Utils;
 
 namespace RedSharp.Mvvm.Abstracts
 {
@@ -11,6 +17,9 @@ namespace RedSharp.Mvvm.Abstracts
     /// </summary>
     public abstract class ObservableObject : INotifyPropertyChanging, INotifyPropertyChanged
     {
+        public const float DefaultFloatValuePrecision = 0.0001f;
+        public const double DefaultDoubleValuePrecision = 0.0001d; 
+
         /// <inheritdoc/>
         public event PropertyChangingEventHandler PropertyChanging;
 
@@ -87,7 +96,7 @@ namespace RedSharp.Mvvm.Abstracts
         /// Special version of "compare and set" for float numbers
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool CompareAndSetValueWithPrecision(ref float field, float value, float precision = 0.0001f, [CallerMemberName] string propertyName = null)
+        protected bool CompareAndSetValueWithPrecision(ref float field, float value, float precision = DefaultFloatValuePrecision, [CallerMemberName] string propertyName = null)
         {
             if (Math.Abs(field - value) < precision)
                 return false;
@@ -101,7 +110,7 @@ namespace RedSharp.Mvvm.Abstracts
         /// Special version of "compare and set" for double numbers
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool CompareAndSetValueWithPrecision(ref double field, double value, double precision = 0.0001, [CallerMemberName] string propertyName = null)
+        protected bool CompareAndSetValueWithPrecision(ref double field, double value, double precision = DefaultDoubleValuePrecision, [CallerMemberName] string propertyName = null)
         {
             if (Math.Abs(field - value) < precision)
                 return false;

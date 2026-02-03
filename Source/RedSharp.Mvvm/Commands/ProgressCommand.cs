@@ -13,7 +13,10 @@ namespace RedSharp.Mvvm.Commands
     /// Async arguments-less command implementation for the long task execution, 
     /// works with <see cref="Task"/> and <see cref="IProgress{double}"/>
     /// </summary>
-    public class ProgressCommand : ProgressCommandBase, ICommand
+    /// <remarks>
+    /// The progress value is between 0.0 and 1.0
+    /// </remarks>
+    public class ProgressCommand : ProgressCommandBase<double>, ICommand
     {
         private ProgressCommandAction _execute;
         private CommandPredicate _canExecute;
@@ -46,9 +49,14 @@ namespace RedSharp.Mvvm.Commands
 
             try
             {
-                IsRunning = true;
+                var task = _execute.Invoke(InitializeProgressHandler());
 
-                await _execute.Invoke(InitializeProgressHandler());
+                if (!task.Wait(AcceptableDelayTime))
+                {
+                    IsRunning = true;
+
+                    await task;
+                }
             }
             catch
             {
@@ -56,7 +64,7 @@ namespace RedSharp.Mvvm.Commands
             }
             finally
             {
-                TerminateProgressHandler();
+                ResetProgressValue();
 
                 IsRunning = false;
             }
@@ -65,6 +73,11 @@ namespace RedSharp.Mvvm.Commands
         bool ICommand.CanExecute(object parameter) => CanExecute();
 
         void ICommand.Execute(object parameter) => ExecuteAsync();
+
+        protected override double CorrectProgressValue(double input)
+        {
+            return Math.Max(Math.Min(input, 1.0), 0.0);
+        }
     }
 
     public delegate Task ProgressCommandAction<TArguments>(TArguments arguments, IProgress<double> progress);
@@ -73,7 +86,10 @@ namespace RedSharp.Mvvm.Commands
     /// Async command with arguments implementation for the long task execution, 
     /// works with <see cref="Task"/> and <see cref="IProgress{double}"/>
     /// </summary>
-    public class ProgressCommand<TArgument> : ProgressCommandBase, ICommand
+    /// <remarks>
+    /// The progress value is between 0.0 and 1.0
+    /// </remarks>
+    public class ProgressCommand<TArgument> : ProgressCommandBase<double>, ICommand
     {
         private ProgressCommandAction<TArgument> _execute;
         private CommandPredicate<TArgument> _canExecute;
@@ -106,9 +122,14 @@ namespace RedSharp.Mvvm.Commands
 
             try
             {
-                IsRunning = true;
+                var task = _execute.Invoke(argument, InitializeProgressHandler());
 
-                await _execute.Invoke(argument, InitializeProgressHandler());
+                if (!task.Wait(AcceptableDelayTime))
+                {
+                    IsRunning = true;
+
+                    await task;
+                }
             }
             catch
             {
@@ -116,7 +137,7 @@ namespace RedSharp.Mvvm.Commands
             }
             finally
             {
-                TerminateProgressHandler();
+                ResetProgressValue();
 
                 IsRunning = false;
             }
@@ -134,6 +155,11 @@ namespace RedSharp.Mvvm.Commands
         {
             if (parameter is TArgument)
                 ExecuteAsync((TArgument)parameter);
+        }
+
+        protected override double CorrectProgressValue(double input)
+        {
+            return Math.Max(Math.Min(input, 1.0), 0.0);
         }
     }
 }

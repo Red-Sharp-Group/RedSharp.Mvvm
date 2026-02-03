@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="RedSharp.Mvvm.Bindings.Tests/RedSharp.Mvvm.Bindings.Tests.csproj"/>
+    <Project Path="RedSharp.Mvvm.Tests/RedSharp.Mvvm.Tests.csproj"/>
+  </Folder>
+  <Project Path="RedSharp.Mvvm.Bindings/RedSharp.Mvvm.Bindings.csproj"/>
+  <Project Path="RedSharp.Mvvm.Collections/RedSharp.Mvvm.Collections.csproj"/>
+  <Project Path="RedSharp.Mvvm.Validation/RedSharp.Mvvm.Validation.csproj"/>
+  <Project Path="RedSharp.Mvvm/RedSharp.Mvvm.csproj" />
+</Solution>

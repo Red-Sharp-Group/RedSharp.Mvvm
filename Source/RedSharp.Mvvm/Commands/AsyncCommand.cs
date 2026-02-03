@@ -61,9 +61,14 @@ namespace RedSharp.Mvvm.Commands
 
             try
             {
-                IsRunning = true;
+                var task = _execute.Invoke();
 
-                await _execute.Invoke();
+                if (!task.Wait(AcceptableDelayTime))
+                {
+                    IsRunning = true;
+
+                    await task;
+                }
             }
             catch
             {
@@ -144,9 +149,14 @@ namespace RedSharp.Mvvm.Commands
 
             try
             {
-                IsRunning = true;
+                var task = _execute.Invoke(argument);
 
-                await _execute.Invoke(argument);
+                if (!task.Wait(AcceptableDelayTime))
+                {
+                    IsRunning = true;
+
+                    await task;
+                }
             }
             catch
             {

@@ -13,7 +13,10 @@ namespace RedSharp.Mvvm.Commands
     /// Async arguments-less command implementation that can be canceled, 
     /// works with <see cref="Task"/> and <see cref="IProgress{double}"/> with <see cref="CancellationTokenSource"/>
     /// </summary>
-    public class ProgressCancellableCommand : ProgressCancellableCommandBase, ICommand
+    /// <remarks>
+    /// The progress value is between 0.0 and 1.0
+    /// </remarks>
+    public class ProgressCancellableCommand : ProgressCancellableCommandBase<double>, ICommand
     {
         private ProgressCancellableCommandAction _execute;
         private CommandPredicate _canExecute;
@@ -46,9 +49,14 @@ namespace RedSharp.Mvvm.Commands
 
             try
             {
-                IsRunning = true;
+                var task = _execute.Invoke(InitializeProgressHandler(), InitializeCancelCommand());
 
-                await _execute.Invoke(InitializeProgressHandler(), InitializeCancelCommand());
+                if (!task.Wait(AcceptableDelayTime))
+                {
+                    IsRunning = true;
+
+                    await task;
+                }
             }
             catch
             {
@@ -56,8 +64,8 @@ namespace RedSharp.Mvvm.Commands
             }
             finally
             {
-                TerminateCancelCommand();
-                TerminateProgressHandler();
+                ResetCancelCommand();
+                ResetProgressValue();
 
                 IsRunning = false;
             }
@@ -66,6 +74,11 @@ namespace RedSharp.Mvvm.Commands
         bool ICommand.CanExecute(object parameter) => CanExecute();
 
         void ICommand.Execute(object parameter) => ExecuteAsync();
+
+        protected override double CorrectProgressValue(double input)
+        {
+            return Math.Max(Math.Min(input, 1.0), 0.0);
+        }
     }
 
     public delegate Task ProgressCancellableCommandAction<TArguments>(TArguments arguments, IProgress<double> progress, CancellationToken token);
@@ -74,7 +87,10 @@ namespace RedSharp.Mvvm.Commands
     /// Async command with arguments implementation that can be canceled, 
     /// works with <see cref="Task"/> and <see cref="IProgress{double}"/> with <see cref="CancellationTokenSource"/>
     /// </summary>
-    public class ProgressCancellableCommand<TArgument> : ProgressCancellableCommandBase, ICommand
+    /// <remarks>
+    /// The progress value is between 0.0 and 1.0
+    /// </remarks>
+    public class ProgressCancellableCommand<TArgument> : ProgressCancellableCommandBase<double>, ICommand
     {
         private ProgressCancellableCommandAction<TArgument> _execute;
         private CommandPredicate<TArgument> _canExecute;
@@ -107,9 +123,14 @@ namespace RedSharp.Mvvm.Commands
 
             try
             {
-                IsRunning = true;
+                var task = _execute.Invoke(argument, InitializeProgressHandler(), InitializeCancelCommand());
 
-                await _execute.Invoke(argument, InitializeProgressHandler(), InitializeCancelCommand());
+                if (!task.Wait(AcceptableDelayTime))
+                {
+                    IsRunning = true;
+
+                    await task;
+                }
             }
             catch
             {
@@ -117,8 +138,8 @@ namespace RedSharp.Mvvm.Commands
             }
             finally
             {
-                TerminateCancelCommand();
-                TerminateProgressHandler();
+                ResetCancelCommand();
+                ResetProgressValue();
 
                 IsRunning = false;
             }
@@ -136,6 +157,11 @@ namespace RedSharp.Mvvm.Commands
         {
             if (parameter is TArgument)
                 ExecuteAsync((TArgument)parameter);
+        }
+
+        protected override double CorrectProgressValue(double input)
+        {
+            return Math.Max(Math.Min(input, 1.0), 0.0);
         }
     }
 }
