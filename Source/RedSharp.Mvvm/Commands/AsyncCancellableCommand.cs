@@ -46,9 +46,14 @@ namespace RedSharp.Mvvm.Commands
 
             try
             {
-                IsRunning = true;
+                var task = _execute.Invoke(InitializeCancelCommand());
 
-                await _execute.Invoke(InitializeCancelCommand());
+                if (!task.Wait(AcceptableDelayTime))
+                {
+                    IsRunning = true;
+
+                    await task;
+                }
             }
             catch
             {
@@ -56,7 +61,7 @@ namespace RedSharp.Mvvm.Commands
             }
             finally
             {
-                TerminateCancelCommand();
+                ResetCancelCommand();
 
                 IsRunning = false;
             }
@@ -107,9 +112,14 @@ namespace RedSharp.Mvvm.Commands
 
             try
             {
-                IsRunning = true;
+                var task = _execute.Invoke(argument, InitializeCancelCommand());
 
-                await _execute.Invoke(argument, InitializeCancelCommand());
+                if (!task.Wait(AcceptableDelayTime))
+                {
+                    IsRunning = true;
+
+                    await task;
+                }
             }
             catch
             {
@@ -117,7 +127,7 @@ namespace RedSharp.Mvvm.Commands
             }
             finally
             {
-                TerminateCancelCommand();
+                ResetCancelCommand();
 
                 IsRunning = false;
             }

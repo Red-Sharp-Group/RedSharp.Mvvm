@@ -89,7 +89,7 @@ namespace RedSharp.Mvvm.Abstracts
         /// <summary>
         /// Resets the cancel state
         /// </summary>
-        protected void TerminateCancelCommand()
+        protected void ResetCancelCommand()
         {
             _cancelCommand.CancellationTokenSource.Dispose();
             _cancelCommand.CancellationTokenSource = null;

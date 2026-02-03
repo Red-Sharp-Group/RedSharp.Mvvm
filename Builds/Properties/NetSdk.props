@@ -25,18 +25,6 @@ To import this file add next line to the .csproj file:
   <Import Project="$(MSBuildThisFileDirectory)Product.props"/>
   <Import Project="$(MSBuildThisFileDirectory)General.props"/>
   
-  <PropertyGroup Condition="$(Configuration.Contains('NetFramework'))">
-    <TargetFramework>$(TargetNetFramework)</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(Configuration.Contains('NetStandard'))">
-    <TargetFramework>$(TargetNetStandard)</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(Configuration.Contains('NetCore'))">
-    <TargetFramework>$(TargetNetCore)</TargetFramework>
-  </PropertyGroup>
-  
   <PropertyGroup>
     <OutDir>$(ProjectBuildDirectory)$(TargetFramework)\</OutDir>
     

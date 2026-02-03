@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace RedSharp.Mvvm.Abstracts
 {
     /// <summary>
-    /// The prototype of long executing command with usage of the <see cref="IProgress{double}"/> object for the progress reporting
+    /// The prototype of long executing command with usage of the <see cref="IProgress{TParameter}"/> object for the progress reporting
     /// </summary>
-    /// <remarks>
-    /// The progress value is between 0.0 and 1.0
-    /// </remarks>
-    public abstract class ProgressCommandBase : AsyncCommandBase
+    public abstract class ProgressCommandBase<TParameter> : AsyncCommandBase
     {
         /// <summary>
         /// Cached arguments "changING" for the <see cref="Progress"/> property
@@ -21,28 +19,21 @@ namespace RedSharp.Mvvm.Abstracts
         /// </summary>
         public static readonly PropertyChangedEventArgs ProgressChanged = new PropertyChangedEventArgs(nameof(Progress));
 
-        private double _progress;
+        private TParameter _progress;
 
-        private Progress<double> _progressHandler;
+        private Progress<TParameter> _progressHandler;
 
         /// <summary>
         /// Current progress of command execution
         /// </summary>
-        /// <remarks>
-        /// The value is between 0.0 and 1.0
-        /// </remarks>
-        public double Progress
+        public TParameter Progress
         {
             get => _progress;
             private set
             {
-                if (value < 0.0)
-                    value = 0.0;
+                value = CorrectProgressValue(value);
 
-                if (value > 1.0)
-                    value = 1.0;
-
-                if (_progress == value)
+                if (EqualityComparer<TParameter>.Default.Equals(_progress, value))
                     return;
 
                 RaisePropertyChanging(ProgressChanging);
@@ -54,22 +45,32 @@ namespace RedSharp.Mvvm.Abstracts
         }
 
         /// <summary>
-        /// Lazy <see cref="IProgress{double}"/> object initializer
+        /// Lazy <see cref="IProgress{TParameter}"/> object initializer
         /// </summary>
-        protected IProgress<double> InitializeProgressHandler()
+        protected IProgress<TParameter> InitializeProgressHandler()
         {
             if (_progressHandler == null)
-                _progressHandler = new Progress<double>(value => Progress = value);
+                _progressHandler = new Progress<TParameter>(value => Progress = value);
 
             return _progressHandler;
         }
 
         /// <summary>
-        /// Sets <see cref="Progress"/> to zero
+        /// Sets <see cref="Progress"/> to default
         /// </summary>
-        protected void TerminateProgressHandler()
+        protected void ResetProgressValue()
         {
-            Progress = 0.0;
+            Progress = GetDefaultProgressValue();
+        }
+
+        protected virtual TParameter GetDefaultProgressValue()
+        {
+            return default;
+        }
+
+        protected virtual TParameter CorrectProgressValue(TParameter input)
+        {
+            return input;
         }
     }
 }

@@ -3,7 +3,6 @@
   
   <PropertyGroup>
     <TargetFrameworks>$(TargetNetCore);$(TargetNetStandard);$(TargetNetFramework)</TargetFrameworks>
-    <Configurations>Debug;Release;Debug(NetFramework);Debug(NetStandard);Debug(NetCore)</Configurations>
     <AssemblyTitle>Red Sharp: MVVM oriented set of collections</AssemblyTitle>
   </PropertyGroup>
 
