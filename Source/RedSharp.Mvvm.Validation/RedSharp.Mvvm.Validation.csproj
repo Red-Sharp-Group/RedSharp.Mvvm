@@ -3,7 +3,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>$(TargetNetCore);$(TargetNetStandard);$(TargetNetFramework)</TargetFrameworks>
-    <Configurations>Debug;Release;Debug(NetFramework);Debug(NetStandard);Debug(NetCore)</Configurations>
     <AssemblyTitle>Red Sharp: Set of validations classes for the MVVM library</AssemblyTitle>
   </PropertyGroup>
 
@@ -20,6 +19,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RedSharp.Mvvm\RedSharp.Mvvm.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
   </ItemGroup>
   
 </Project>

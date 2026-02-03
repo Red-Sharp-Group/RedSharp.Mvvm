@@ -6,20 +6,19 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using RedSharp.General.Helpers;
 using RedSharp.Mvvm.Abstracts;
-using RedSharp.Mvvm.Models;
 using RedSharp.Mvvm.Validation.Interfaces;
 using RedSharp.Mvvm.Validation.Utils;
 
 namespace RedSharp.Mvvm.Validation.Abstracts
 {
-    public abstract class ValidatableObject<TValidationInfo> : ObservableObject, INotifyDataErrorInfo
+    public abstract class ValidatableObject<TValidationResult> : ObservableObject, INotifyDataErrorInfo
     {
         private class ValidationContext : IValidationContext
         {
-            private ValidatableObject<TValidationInfo> _owner;
+            private ValidatableObject<TValidationResult> _owner;
             private string _category;
 
-            public ValidationContext(ValidatableObject<TValidationInfo> owner, string category)
+            public ValidationContext(ValidatableObject<TValidationResult> owner, string category)
             {
                 _owner = owner;
                 _category = category;
@@ -29,17 +28,17 @@ namespace RedSharp.Mvvm.Validation.Abstracts
 
             public object MakeValidationInfoObject(string property, string rule, bool isRunning, bool IsValid, object stored)
             {
-                var castedObject = default(TValidationInfo);
+                var castedObject = default(TValidationResult);
 
                 if (stored != null)
-                    castedObject = (TValidationInfo)stored;
+                    castedObject = (TValidationResult)stored;
 
                 return _owner.WrapValidationResult(property, rule, _category, isRunning, IsValid, castedObject);
             }
 
             public void ReportCountChanged()
             {
-                _owner.RaisePropertyChanged(nameof(ValidatableObject<TValidationInfo>.HasErrors));
+                _owner.RaisePropertyChanged(nameof(ValidatableObject<TValidationResult>.HasErrors));
             }
 
             public void ReportValidationChanged(string property)
@@ -54,10 +53,10 @@ namespace RedSharp.Mvvm.Validation.Abstracts
         protected const string WarningValidationCategory = "Warning";
         protected const string InformationValidationCategory = "Information";
 
-        private static Dictionary<string, GlobalValidationCache> _globalValidationCache;
+        private static Dictionary<string, ValidationRegistry> _globalValidationCache;
         private static List<object> _sharedValidationInfoCache;
 
-        private Dictionary<string, LocalValidationCache> _localValidationCache;
+        private Dictionary<string, ValidationEngine> _localValidationCache;
 
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
@@ -72,14 +71,14 @@ namespace RedSharp.Mvvm.Validation.Abstracts
             {
                 var category = item.Key;
                 var globalCache = item.Value;
-                var localCache = globalCache.CreateLocalCache(currentType);
+                var localCache = globalCache.CreateValidationEngine(currentType);
 
                 if (localCache != null)
                 {
                     localCache.Initialize(new ValidationContext(this, category));
 
                     if (_localValidationCache == null)
-                        _localValidationCache = new Dictionary<string, LocalValidationCache>(StringComparer.InvariantCultureIgnoreCase);
+                        _localValidationCache = new Dictionary<string, ValidationEngine>(StringComparer.InvariantCultureIgnoreCase);
 
                     _localValidationCache.Add(category, localCache);
                 }
@@ -124,11 +123,11 @@ namespace RedSharp.Mvvm.Validation.Abstracts
             ArgumentsGuard.ThrowIfNull(rule, nameof(rule));
 
             if (_globalValidationCache == null)
-                _globalValidationCache = new Dictionary<string, GlobalValidationCache>(StringComparer.InvariantCultureIgnoreCase);
+                _globalValidationCache = new Dictionary<string, ValidationRegistry>(StringComparer.InvariantCultureIgnoreCase);
 
             if (!_globalValidationCache.TryGetValue(category, out var cache))
             {
-                cache = new GlobalValidationCache();
+                cache = new ValidationRegistry();
 
                 _globalValidationCache.Add(category, cache);
             }
@@ -191,7 +190,7 @@ namespace RedSharp.Mvvm.Validation.Abstracts
                 return;
 
             foreach (var cache in _localValidationCache.Values)
-                cache.Check(propertyName, value);
+                cache.CheckProperty(propertyName, value);
         }
 
         protected override void SetValue<TValue>(ref TValue field, TValue value, [CallerMemberName] string propertyName = null)
@@ -201,7 +200,7 @@ namespace RedSharp.Mvvm.Validation.Abstracts
             CheckValue(value, propertyName);
         }
 
-        protected abstract TValidationInfo WrapValidationResult(string property, string identifier, string category, bool isRunning, bool isValid, TValidationInfo stored);
+        protected abstract TValidationResult WrapValidationResult(string property, string identifier, string category, bool isRunning, bool isValid, TValidationResult stored);
 
         protected void RaiseErrorsChanged([CallerMemberName] string property = null)
         {
@@ -221,15 +220,15 @@ namespace RedSharp.Mvvm.Validation.Abstracts
         }
     }
 
-    public abstract class ValidatableObject : ValidatableObject<ValidationInfo>
+    public abstract class ValidatableObject : ValidatableObject<Models.ValidationInfo>
     {
-        protected override ValidationInfo WrapValidationResult(string property, string identifier, string category, bool isRunning, bool isValid, ValidationInfo previous)
+        protected override Models.ValidationInfo WrapValidationResult(string property, string identifier, string category, bool isRunning, bool isValid, Models.ValidationInfo previous)
         {
             if (!isRunning && isValid)
                 return null;
 
             if (previous == null)
-                previous = new ValidationInfo(identifier, category);
+                previous = new Models.ValidationInfo(identifier, category);
 
             previous.IsRunning = isRunning;
 

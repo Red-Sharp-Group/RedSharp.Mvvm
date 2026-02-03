@@ -17,7 +17,7 @@ namespace RedSharp.Mvvm.Validation.Abstracts
 
         public string Identifier { get; }
 
-        public Task<bool> ValidateAsync<TInputValue>(ObservableObject inputInstance, TInputValue inputValue)
+        public Task<bool> ValidateAsync<TInputValue>(object inputInstance, TInputValue inputValue)
         {
             if (inputInstance is TInstance instance && inputValue is TValue value)
                 return InternalInvoke(instance, value);
